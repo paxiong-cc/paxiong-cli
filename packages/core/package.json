@@ -14,7 +14,7 @@
     "lib"
   ],
   "publishConfig": {
-    "registry": "https://registry.npm.taobao.org/"
+    "access": "public"
   },
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1"
@@ -22,5 +22,5 @@
   "dependencies": {
     "@paxiong-cli/cc": "^0.0.3"
   },
-  "gitHead": "b3e0bb1588d897a28e61d0943e79cebb6932c994"
+  "gitHead": "658510855b46c843b4cb403654d30d5ca878a054"
 }
