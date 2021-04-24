@@ -1,9 +1,8 @@
 'use strict';
 
 module.exports = core;
-
-const path = require('path')
 const log = require('@paxiong-cli/log')
+const path = require('path')
 const pkg = require('../package.json')
 const semver = require('semver')
 const colors = require('colors')
@@ -13,23 +12,18 @@ const dotenv = require('dotenv')
 const config = require('./config');
 
 
-function core() {
+async function core() {
   try {
-    rootCheck()
+    checkVersion()
     checkNodeVersion()
+    rootCheck()
     checkUserHome()
     checkArgs()
-    checkVersion()
     checkEnv()
+    await checkUpdate()
   } catch (err) {
     log.error(err)
   }
-}
-
-// 权限检查
-function rootCheck() {
-  const rootCheck = require('root-check')
-  rootCheck()
 }
 
 // 检查cli版本号
@@ -45,6 +39,12 @@ function checkNodeVersion() {
   }
 }
 
+// 权限检查
+function rootCheck() {
+  const rootCheck = require('root-check')
+  rootCheck()
+}
+
 // 用户主目录检查
 function checkUserHome() {
   if (!userHome || !pathExists(userHome)) {
@@ -54,9 +54,9 @@ function checkUserHome() {
 
 // 检查参数
 function checkArgs() {
-  const args = require('minimist')(process.argv.slice(0))
+  const args = require('minimist')(process.argv.slice(2))
   args.debug
-    ? log.level = ' verbose'
+    ? log.level = 'verbose'
     : ''
 }
 
@@ -69,7 +69,8 @@ function checkEnv() {
       path: dotenvPath
     })
   }
-  console.log(createGlobalEnv())
+  createGlobalEnv()
+  log.verbose('环境变量', process.env.CLI_HOME_PATH)
 }
 
 // 创建全局环境变量
@@ -84,5 +85,19 @@ function createGlobalEnv() {
     cliConfig['cliHome'] = path.join(userHome, config.DEFUALT_CLI_HOME)
   }
 
-  return cliConfig
+  process.env.CLI_HOME_PATH = cliConfig.cliHome
+}
+
+// 检查是否有新版本
+async function checkUpdate() {
+  // 获取当前版本号
+  const currentVersion = pkg.version
+  const currentPackageName = pkg.name
+  // 获取线上版本号列表
+  const { getUpdateVersions } = require('@paxiong-cli/get-npm-info')
+  const versionList = await getUpdateVersions(currentVersion, currentPackageName)
+  // 提示更新到最新版本
+  if (versionList.length) {
+    log.verbose(colors.yellow('版本更新', `你当前的 paxiong-cli 版本是 ${currentVersion}, 请更新至最新版本 ${versionList[0]}`))
+  }
 }
