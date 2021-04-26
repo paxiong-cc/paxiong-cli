@@ -10,7 +10,10 @@ const userHome = require('user-home')
 const pathExists = require('path-exists')
 const dotenv = require('dotenv')
 const config = require('./config');
+const init = require('@paxiong-cli/init')
 
+const commander = require('commander')
+const program = new commander.Command()
 
 async function core() {
   try {
@@ -18,9 +21,10 @@ async function core() {
     checkNodeVersion()
     rootCheck()
     checkUserHome()
-    checkArgs()
+    // checkArgs()
     checkEnv()
     await checkUpdate()
+    registerCommand()
   } catch (err) {
     log.error(err)
   }
@@ -100,4 +104,49 @@ async function checkUpdate() {
   if (versionList.length) {
     log.verbose(colors.yellow('版本更新', `你当前的 paxiong-cli 版本是 ${currentVersion}, 请更新至最新版本 ${versionList[0]}`))
   }
+}
+
+// 注册命令
+function registerCommand() {
+  // 初始配置
+  program
+    .name(Object.keys(pkg.bin)[0])
+    .usage('<command> [options]')
+    .version(pkg.version)
+    .option('-d, --debug', 'open debug', false)
+
+  // 监听debug命令
+  program.on('option:debug', function() {
+    if (program._optionValues.debug) {
+      process.env.LOG_LEVEL = 'verbose'
+    } else {
+      process.env.LOG_LEVEL = 'info'
+    }
+    log.level = process.env.LOG_LEVEL
+  })
+
+  // 监听不存在的命令
+  program.on('command:*', function(obj) {
+    const cmdList = program.commands
+    console.log(colors.red('未知命令: ' + obj[0]))
+
+    if (cmdList.length) {
+      const availableList = cmdList.map(item => item.name())
+      console.log(colors.green('可用命令: ' + availableList.join(' ')))
+    }
+  })
+
+  // 注册命令
+  program
+    .command('init [projectName]')
+    .option('-f --force', '是否强制初始化项目')
+    .action(init)
+
+  // 没有输入命令时自动展示帮助文档
+  // if (program.args && program.args.length < 1) {
+  if (process.argv.length < 3) {
+    program.outputHelp()
+  }
+
+  program.parse(process.argv)
 }
