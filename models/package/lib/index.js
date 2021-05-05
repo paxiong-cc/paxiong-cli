@@ -1,8 +1,10 @@
 'use strict';
 
-const pkgDir = require('pkg-dir').sync
+const pkgDir = require('pkg-dir')
 const formatPath = require('@paxiong-cli/format-path')
 const path = require('path')
+const npminstall = require('npminstall')
+const getNpmInfo = require('@paxiong-cli/get-npm-info')
 
 class Package {
 	constructor(options) {
@@ -24,7 +26,16 @@ class Package {
 	exists() {}
 
 	// 安装Package
-	install() {}
+	async install() {
+		return npminstall({
+			root: this.targetPath,
+			storeDir: this.storePath,
+			register: getNpmInfo.getRegistry(),
+			pkgs: [
+				{ name: this.packageName, version: this.packageVersion }
+			]
+		})
+	}
 
 	// 更定Package
 	update() {}
@@ -32,7 +43,7 @@ class Package {
 	// 获取入口文件的路径
 	getRootFilePath() {
 		// 获取pakage.json所在的目录
-		const dir = pkgDir(this.targetPath)
+		const dir = pkgDir.sync(this.targetPath)
 
 		if (dir) {
 			// 读取package.json
