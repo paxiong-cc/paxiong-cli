@@ -3,6 +3,7 @@
 const pkgDir = require('pkg-dir')
 const formatPath = require('@paxiong-cli/format-path')
 const path = require('path')
+const fse = require('fs-extra')
 const npminstall = require('npminstall')
 const getNpmInfo = require('@paxiong-cli/get-npm-info')
 const pathExists = require('path-exists').sync
@@ -24,7 +25,12 @@ class Package {
 		 this.cacheFilePathPrefix = this.packageName.replace('/', '_')
 	}
 
+	// 创建缓存目录，获取包最新版本号
 	async prepare() {
+		if (this.storePath && !pathExists(this.storePath)) {
+			fse.mkdirpSync(this.storePath)
+		}
+
 		if (this.packageVersion === 'latest') {
 			this.packageVersion = await getNpmInfo.getNpmLatestVersion(this.packageName)
 		}
@@ -35,7 +41,7 @@ class Package {
 		return path.resolve(this.storePath, `_${this.cacheFilePathPrefix}@${this.packageVersion}@${this.packageName}`)
 	}
 
-	// 判断当前Package是否存在
+	// 判断当前Package是否存在，具体到包和版本号
 	async exists() {
 		if (this.storePath) {
 			await this.prepare()
@@ -59,7 +65,18 @@ class Package {
 	}
 
 	// 更定Package
-	update() {}
+	async update() {
+		if (!pathExists(this.cacheFilePath)) {
+			return npminstall({
+				root: this.targetPath,
+				storeDir: this.storePath,
+				register: getNpmInfo.getRegistry(),
+				pkgs: [
+					{ name: this.packageName, version: this.packageVersion }
+				]
+			})
+		}
+	}
 
 	// 获取入口文件的路径
 	getRootFilePath() {
