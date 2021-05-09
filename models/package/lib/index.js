@@ -80,16 +80,24 @@ class Package {
 
 	// 获取入口文件的路径
 	getRootFilePath() {
-		// 获取pakage.json所在的目录
-		const dir = pkgDir.sync(this.targetPath)
-		if (dir) {
-			// 读取package.json
-			const pkgFile = require(path.resolve(dir, 'package.json'))
-			// 寻找main
-			if (pkgFile && pkgFile.main) {
-				// 路径的兼容(macOS/windows)
-				return formatPath(path.resolve(dir, pkgFile.main))
+		function _getRootFile(targetPath) {
+			// 获取pakage.json所在的目录
+			const dir = pkgDir.sync(targetPath)
+			if (dir) {
+				// 读取package.json
+				const pkgFile = require(path.resolve(dir, 'package.json'))
+				// 寻找main
+				if (pkgFile && pkgFile.main) {
+					// 路径的兼容(macOS/windows)
+					return formatPath(path.resolve(dir, pkgFile.main))
+				}
 			}
+		}
+
+		if (this.storePath) {
+		  return _getRootFile(this.cacheFilePath)
+		} else {
+			return _getRootFile(this.targetPath)
 		}
 	}
 }

@@ -1,11 +1,11 @@
-# `@paxiong-cli/core`
+# `@paxiong-cli/init`
 
 > TODO: description
 
 ## Usage
 
 ```
-const core = require('@paxiong-cli/core');
+const init = require('@paxiong-cli/init');
 
 // TODO: DEMONSTRATE API
 ```

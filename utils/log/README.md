@@ -1,11 +1,11 @@
-# `@paxiong-cli/cc`
+# `@paxiong-cli/log`
 
 > TODO: description
 
 ## Usage
 
 ```
-const cc = require('@paxiong-cli/cc');
+const log = require('@paxiong-cli/log');
 
 // TODO: DEMONSTRATE API
 ```

@@ -11,23 +11,31 @@ const pathExists = require('path-exists')
 const dotenv = require('dotenv')
 const config = require('./config');
 const init = require('@paxiong-cli/init')
+const exec = require('@paxiong-cli/exec')
 
 const commander = require('commander')
 const program = new commander.Command()
 
 async function core() {
   try {
-    checkVersion()
-    checkNodeVersion()
-    rootCheck()
-    checkUserHome()
-    // checkArgs()
-    checkEnv()
-    await checkUpdate()
+    prepare()
     registerCommand()
   } catch (err) {
     log.error(err)
+    if (process.env.LOG_LEVEL === 'verbose') {
+      console.log(err)
+    }
   }
+}
+
+// 准备阶段
+async function prepare() {
+  checkVersion()
+  checkNodeVersion()
+  rootCheck()
+  checkUserHome()
+  checkEnv()
+  await checkUpdate()
 }
 
 // 检查cli版本号
@@ -45,8 +53,8 @@ function checkNodeVersion() {
 
 // 权限检查
 function rootCheck() {
-  const rootCheck = require('root-check')
-  rootCheck()
+  const rootChecks = require('root-check')
+  rootChecks()
 }
 
 // 用户主目录检查
@@ -54,14 +62,6 @@ function checkUserHome() {
   if (!userHome || !pathExists(userHome)) {
     throw Error(colors.red(`当前用户主目录不存在`))
   }
-}
-
-// 检查参数
-function checkArgs() {
-  const args = require('minimist')(process.argv.slice(2))
-  args.debug
-    ? log.level = 'verbose'
-    : ''
 }
 
 // 检查环境变量
@@ -74,7 +74,6 @@ function checkEnv() {
     })
   }
   createGlobalEnv()
-  log.verbose('环境变量', process.env.CLI_HOME_PATH)
 }
 
 // 创建全局环境变量
@@ -102,7 +101,7 @@ async function checkUpdate() {
   const versionList = await getUpdateVersions(currentVersion, currentPackageName)
   // 提示更新到最新版本
   if (versionList.length) {
-    log.verbose(colors.yellow('版本更新', `你当前的 paxiong-cli 版本是 ${currentVersion}, 请更新至最新版本 ${versionList[0]}`))
+    log.warn(colors.yellow('版本更新', `你当前的 paxiong-cli 版本是 ${currentVersion}, 请更新至最新版本 ${versionList[0]}`))
   }
 }
 
@@ -114,6 +113,14 @@ function registerCommand() {
     .usage('<command> [options]')
     .version(pkg.version)
     .option('-d, --debug', 'open debug', false)
+    .option('-tp, --targetPath <targetPath>', '是否指定本地调试文件路径', '')
+
+  // 注册命令
+  program
+    .command('init [projectName]')
+    .option('-f, --force', '是否强制初始化项目')
+    // .action(init)
+    .action(exec)
 
   // 监听debug命令
   program.on('option:debug', function() {
@@ -123,6 +130,10 @@ function registerCommand() {
       process.env.LOG_LEVEL = 'info'
     }
     log.level = process.env.LOG_LEVEL
+  })
+
+  program.on('option:targetPath', function() {
+    process.env.CLI_TARGET_PATH = program._optionValues.targetPath
   })
 
   // 监听不存在的命令
@@ -135,12 +146,6 @@ function registerCommand() {
       console.log(colors.green('可用命令: ' + availableList.join(' ')))
     }
   })
-
-  // 注册命令
-  program
-    .command('init [projectName]')
-    .option('-f --force', '是否强制初始化项目')
-    .action(init)
 
   // 没有输入命令时自动展示帮助文档
   // if (program.args && program.args.length < 1) {
