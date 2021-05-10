@@ -1,7 +1,14 @@
 'use strict';
 
-module.exports = init;
+const Command = require('@paxiong-cli/command')
 
-function init(projectName, cmdObj) {
-  console.log(projectName, cmdObj, process.env.CLI_TARGET_PATH)
+class InitCommand extends Command {
+
 }
+
+function init(argv) {
+  new InitCommand(argv)
+}
+
+module.exports = init;
+module.exports.InitCommand = InitCommand

@@ -25,5 +25,8 @@
   },
   "bugs": {
     "url": "https://github.com/paxiong-cc/paxiong-cli/issues"
+  },
+  "dependencies": {
+    "@paxiong-cli/command": "file:../../models/command"
   }
 }
