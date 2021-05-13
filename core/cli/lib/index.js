@@ -4,13 +4,11 @@ module.exports = core;
 const log = require('@paxiong-cli/log')
 const path = require('path')
 const pkg = require('../package.json')
-const semver = require('semver')
 const colors = require('colors')
 const userHome = require('user-home')
 const pathExists = require('path-exists')
 const dotenv = require('dotenv')
 const config = require('./config');
-const init = require('@paxiong-cli/init')
 const exec = require('@paxiong-cli/exec')
 
 const commander = require('commander')
@@ -31,7 +29,6 @@ async function core() {
 // 准备阶段
 async function prepare() {
   checkVersion()
-  checkNodeVersion()
   rootCheck()
   checkUserHome()
   checkEnv()
@@ -41,14 +38,6 @@ async function prepare() {
 // 检查cli版本号
 function checkVersion() {
   log.notice('version', pkg.version)
-}
-
-// 检查node版本号
-function checkNodeVersion() {
-  const currentVersion = process.version
-  if (semver.lt(currentVersion, config.LOWEST_NODE_VERSION)) {
-    throw Error(colors.red(`paxiong-cli 需要安装 v${config.LOWEST_NODE_VERSION} 以上版本的 Node.js`))
-  }
 }
 
 // 权限检查
