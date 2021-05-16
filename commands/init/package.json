@@ -28,6 +28,9 @@
   },
   "dependencies": {
     "@paxiong-cli/command": "file:../../models/command",
-    "@paxiong-cli/log": "file:../../utils/log"
+    "@paxiong-cli/log": "file:../../utils/log",
+    "fs-extra": "^10.0.0",
+    "inquirer": "^8.0.0",
+    "semver": "^7.3.5"
   }
 }

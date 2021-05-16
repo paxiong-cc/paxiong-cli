@@ -12,7 +12,6 @@ async function exec() {
     packageName: arguments[arguments.length - 1].args[0] || 'paxiong',
     packageVersion: 'latest',
   }
-  console.log(process.env.CLI_HOME_PATH)
   const CACHE_DIR = 'dependencies'
   let pkg
 
@@ -61,7 +60,11 @@ async function exec() {
       args[args.length - 1] = o
       const code = `require("${rootFile}").call(null, ${JSON.stringify(args)})`
       // 创建node子进程
-      const child = cp.spawn('node', ['-e', code], {
+      // const child = cp.spawn('node', ['-e', code], {
+      //   cwd: process.cwd(),
+      //   stdio: 'inherit'
+      // })
+      const child = spawn('node', ['-e', code], {
         cwd: process.cwd(),
         stdio: 'inherit'
       })
@@ -77,6 +80,17 @@ async function exec() {
       log.error(err.message)
     }
   }
+}
+
+// 兼容windows
+function spawn(command, args, options) {
+  const win32 = process.platform === 'win32'
+
+  const cmd = win32 ? 'cmd' : command
+  // windows 'cmd', ['/c', 'node', '-e'], options /c静默执行
+  const cmdArgs = win32 ? ['/c'].concat(command, args) : args;
+
+  return cp.spawn(cmd, cmdArgs, options || {})
 }
 
 module.exports = exec;
