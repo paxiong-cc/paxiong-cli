@@ -1,7 +1,7 @@
 {
-  "name": "@paxiong-cli/init",
+  "name": "@paxiong-cli/request",
   "version": "0.0.1",
-  "description": "init",
+  "description": "> TODO: description",
   "author": "Administrator <576303283@qq.com>",
   "homepage": "https://github.com/paxiong-cc/paxiong-cli#readme",
   "license": "ISC",
@@ -27,12 +27,6 @@
     "url": "https://github.com/paxiong-cc/paxiong-cli/issues"
   },
   "dependencies": {
-    "@paxiong-cli/command": "file:../../models/command",
-    "@paxiong-cli/log": "file:../../utils/log",
-    "@paxiong-cli/request": "file:../../utils/request",
-    "@paxiong-cli/package": "file:../../models/package",
-    "fs-extra": "^10.0.0",
-    "inquirer": "^8.0.0",
-    "semver": "^7.3.5"
+    "axios": "^0.21.1"
   }
 }

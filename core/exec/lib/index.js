@@ -38,7 +38,7 @@ async function exec() {
     Reflect.deleteProperty(options, 'storePath')
     pkg = new Package(options)
   }
-
+  // 无tp走缓存, 有tp走tp
   const rootFile = pkg.getRootFilePath()
   
   // init模块路径

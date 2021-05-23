@@ -6,23 +6,43 @@ const fs = require('fs')
 const inquirer = require('inquirer')
 const fse = require('fs-extra')
 const semver = require('semver')
+const getProjectTemplate = require('./getProjectTemplate');
+const Package = require('@paxiong-cli/package')
+const TPYE_PROJECT = 'project'
+const TPYE_COMPONENT = 'component'
 
 class InitCommand extends Command {
   init() {
-    this.projectName = this._argv[0] || ''
+    this.projectName = this._argv[0] || '' // 命令初始的名字
     this.force = !!this._argv[1].force
+    this.projectInfo = null // 选择的项目信息
+    this.template = null // 远程获取的template
     log.verbose('projectName', this.projectName)
     log.verbose('force', this.force)
   }
 
-  exec() {
-    // 1.准备阶段
-    this.prepare();
-    // 2.下载模板
-    // 3.安装模板 
+  async exec() {
+    try {
+      // 1.准备阶段
+      await this.prepare();
+      // 2.下载模板
+      if (this.projectInfo) {
+        await this.downloadTemplate()
+      }
+      // 3.安装模板 
+    } catch(e) {
+      log.error(e.message)
+    }
   }
 
   async prepare() {
+    // 判断线上模板是否存在
+    const template = await getProjectTemplate()
+    if (!(template && template.data.rows.length)) {
+      throw Error('项目模板不存在')
+    }
+    this.template = template.data.rows
+
     // 1.项目目录不为空
     if (this.isDirEmpty()) {
       // 当前目录不为空时询问是否继续安装
@@ -31,7 +51,7 @@ class InitCommand extends Command {
       }
     }
     // 2.选择创建项目或组件
-    this.getProjectInfo()
+    this.projectInfo = await this.getProjectInfo()
   }
 
   // 目录是否为空
@@ -76,11 +96,9 @@ class InitCommand extends Command {
     return isContinue || this.force
   }
 
-  // 创建项目或组件
+  // 选择创建项目或组件
   async getProjectInfo() {
-    let projectInfo = {}
-    const TPYE_PROJECT = 'project'
-    const TPYE_COMPONENT = 'component'
+    let info = {}
     // 选择项目或组件
     const { type } = await inquirer.prompt({
       type: 'list',
@@ -101,7 +119,7 @@ class InitCommand extends Command {
 
     // 输入项目信息
     if (type === TPYE_PROJECT) {
-      projectInfo = await inquirer.prompt([
+      const projectInfo = await inquirer.prompt([
         {
           type: 'input',
           name: 'projectName',
@@ -135,12 +153,48 @@ class InitCommand extends Command {
             return semver.valid(v)
           }
         },
+        {
+          type: 'list',
+          name: 'projectTemplate',
+          message: '请选择项目模板',
+          choices: this.selectTemplate()
+        }
       ])
-
+      return info = { ...projectInfo, projectType: TPYE_PROJECT }
     // 创建组件
     } else if (type === TPYE_COMPONENT) {
 
     }
+  }
+
+  // 下载模板项目
+  async downloadTemplate() {
+    const { npm_name, version } = this.template.find(item => item.npm_name === this.projectInfo.projectTemplate)
+    const targetPath = path.resolve(process.env.CLI_HOME_PATH, 'template')
+    const storePath = path.resolve(process.env.CLI_HOME_PATH, 'template', 'node_modules')
+
+    const templateNpm = new Package({
+      targetPath,
+      storePath,
+      packageName: npm_name,
+      packageVersion: version
+    })
+
+    if (!(await templateNpm.exists())) {
+      await templateNpm.install()
+    } else {
+      await templateNpm.update()
+    }
+  }
+
+  // 选择项目模板
+  selectTemplate() {
+    return this.template.map(item => {
+      return {
+        value: item.npm_name,
+        name: item.name
+      }
+    })
   }
 }
 
