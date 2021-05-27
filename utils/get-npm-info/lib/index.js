@@ -10,8 +10,12 @@ async function getUpdateVersions(version, packageName) {
 	const url = urlJoin(getRegistry(), packageName)
 	const versions = await httpGetInfoVersions(url)
 	let versionList = Object.keys(versions)
-	versionList = versionList.filter(item => semver.satisfies(item, `>${version}`))
-	versionList = versionList.sort((a, b) => semver.gt(a, b) ? -1 : 1)
+	versionList = versionList.filter(item => semver.satisfies(item, `>=${version}`))
+	if (!version) {
+		versionList = versionList[0]
+	} else {
+		versionList = versionList.sort((a, b) => semver.gt(a, b) ? -1 : 1)
+	}
 	return versionList
 }
 

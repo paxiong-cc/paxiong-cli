@@ -8,8 +8,11 @@ const fse = require('fs-extra')
 const semver = require('semver')
 const getProjectTemplate = require('./getProjectTemplate');
 const Package = require('@paxiong-cli/package')
+const { spinnerStart } = require('@paxiong-cli/utils')
 const TPYE_PROJECT = 'project'
 const TPYE_COMPONENT = 'component'
+const TEMPLATE_TYPE_NORMAL = 'default'
+const TEMPLATE_TYPE_CUSTOM = 'custom'
 
 class InitCommand extends Command {
   init() {
@@ -29,7 +32,8 @@ class InitCommand extends Command {
       if (this.projectInfo) {
         await this.downloadTemplate()
       }
-      // 3.安装模板 
+      // 3.安装模板
+      await this.installTemplate()
     } catch(e) {
       log.error(e.message)
     }
@@ -56,8 +60,8 @@ class InitCommand extends Command {
 
   // 目录是否为空
   isDirEmpty() {
-    // 获取工作目录(哪里调用就在哪)
     const localPath = process.cwd()
+    // 获取工作目录(哪里调用就在哪)
     let fileList = fs.readdirSync(localPath)
     fileList = fileList.filter(file => {
       return !file.startsWith('.') && ['node_modules'].indexOf(file) < 0
@@ -160,7 +164,8 @@ class InitCommand extends Command {
           choices: this.selectTemplate()
         }
       ])
-      return info = { ...projectInfo, projectType: TPYE_PROJECT }
+      const item = this.template.find(item => item.npm_name === projectInfo.projectTemplate)
+      return info = { ...projectInfo, projectType: TPYE_PROJECT, type: item.type }
     // 创建组件
     } else if (type === TPYE_COMPONENT) {
 
@@ -181,9 +186,32 @@ class InitCommand extends Command {
     })
 
     if (!(await templateNpm.exists())) {
-      await templateNpm.install()
+      const spinner = spinnerStart('正在下载文件')
+      try {
+        await templateNpm.install()
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      } catch(e) {
+        throw e
+      } finally {
+        spinner.stop(true)
+        if (await templateNpm.exists()) {
+          log.success('下载成功')
+        }
+      }
+      
     } else {
-      await templateNpm.update()
+      const spinner = spinnerStart('正在更新文件')
+      try {
+        await templateNpm.update()
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      } catch(e) {
+        throw e
+      } finally {
+        spinner.stop(true)
+        if (await templateNpm.exists()) {
+          log.success('更新成功')
+        }
+      }
     }
   }
 
@@ -195,6 +223,32 @@ class InitCommand extends Command {
         name: item.name
       }
     })
+  }
+
+  // 安装模板
+  async installTemplate() {
+    if (!this.template) {
+      return log.error('暂无获取在线模板')
+    }
+
+    // 安装标准模板
+    if (this.projectInfo.type === TEMPLATE_TYPE_NORMAL) {
+      await this.installNormalTemplate()
+    
+    // 安装自定义模板
+    } else if (this.projectInfo.type === TEMPLATE_TYPE_CUSTOM) {
+      await this.installCustomTemplate()
+    } else {
+      log.error('在线模板类型错误')
+    }
+  }
+
+  async installNormalTemplate() {
+    console.log('安装标准模板')
+  }
+
+  async installCustomTemplate() {
+    console.log('安装自定义模板')
   }
 }
 

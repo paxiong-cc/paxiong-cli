@@ -32,7 +32,7 @@ class Package {
 		}
 
 		if (this.packageVersion === 'latest') {
-			this.packageVersion = await getNpmInfo.getNpmLatestVersion(this.packageName)
+			this.packageVersion = await getNpmInfo.getUpdateVersions(this.packageName)
 		}
 	}
 
