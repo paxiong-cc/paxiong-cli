@@ -130,23 +130,7 @@ class InitCommand extends Command {
 
     // 输入项目信息
     if (type === TPYE_PROJECT) {
-      const projectInfo = await inquirer.prompt([
-        {
-          type: 'input',
-          name: 'projectName',
-          message: '请输入项目名称',
-          default: 'paxiong',
-          validate: function(v) {
-            const done = this.async()
-            // 合法 a, a-b, a_b, a_b_c, a_b1_c1
-            const reg = /^[a-zA-Z]+([-_][a-zA-Z]+\d*)*$/
-            if (!reg.test(v)) {
-              done('请输入合法的项目名称')
-              return
-            }
-            done(null, true)
-          }
-        },
+      const promptList = [
         {
           type: 'input',
           name: 'projectVersion',
@@ -170,7 +154,35 @@ class InitCommand extends Command {
           message: '请选择项目模板',
           choices: this.selectTemplate()
         }
-      ])
+      ]
+      
+      // 如果已经init name
+      if (process.env.PROJECT_NAME == 'undefined') {
+        promptList.unshift({
+          type: 'input',
+          name: 'projectName',
+          message: '请输入项目名称',
+          default: 'paxiong',
+          validate: function(v) {
+            const done = this.async()
+            // 合法 a, a-b, a_b, a_b_c, a_b1_c1
+            const reg = /^[a-zA-Z]+([-_][a-zA-Z]+\d*)*$/
+            if (!reg.test(v)) {
+              done('请输入合法的项目名称')
+              return
+            }
+            done(null, true)
+          }
+        })
+      }
+
+      const projectInfo = await inquirer.prompt(promptList)
+
+      if (process.env.PROJECT_NAME) {
+        projectInfo.projectName = process.env.PROJECT_NAME
+      }
+
+      // 筛选选中的模板
       const item = this.template.find(item => item.npm_name === projectInfo.projectTemplate)
 
       if (projectInfo.projectName) {
