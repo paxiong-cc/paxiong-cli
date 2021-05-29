@@ -9,4 +9,9 @@ const spinnerStart = function(msg) {
 	return spinner
 }
 
+const sleep = async function(val=1000) {
+	return new Promise(resolve => setTimeout(resolve, val))
+}
+
 exports.spinnerStart = spinnerStart
+exports.sleep = sleep

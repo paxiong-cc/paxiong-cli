@@ -8,7 +8,7 @@ const fse = require('fs-extra')
 const semver = require('semver')
 const getProjectTemplate = require('./getProjectTemplate');
 const Package = require('@paxiong-cli/package')
-const { spinnerStart } = require('@paxiong-cli/utils')
+const { spinnerStart, sleep } = require('@paxiong-cli/utils')
 const TPYE_PROJECT = 'project'
 const TPYE_COMPONENT = 'component'
 const TEMPLATE_TYPE_NORMAL = 'default'
@@ -20,6 +20,7 @@ class InitCommand extends Command {
     this.force = !!this._argv[1].force
     this.projectInfo = null // 选择的项目信息
     this.template = null // 远程获取的template
+    this.templateNpm = null // 下载的模板
     log.verbose('projectName', this.projectName)
     log.verbose('force', this.force)
   }
@@ -27,7 +28,9 @@ class InitCommand extends Command {
   async exec() {
     try {
       // 1.准备阶段
-      await this.prepare();
+      if (! await this.prepare()) {
+        return
+      }
       // 2.下载模板
       if (this.projectInfo) {
         await this.downloadTemplate()
@@ -51,11 +54,12 @@ class InitCommand extends Command {
     if (this.isDirEmpty()) {
       // 当前目录不为空时询问是否继续安装
       if (!(await this.isContinue())) {
-        return
+        return false
       }
     }
     // 2.选择创建项目或组件
     this.projectInfo = await this.getProjectInfo()
+    return true
   }
 
   // 目录是否为空
@@ -189,7 +193,7 @@ class InitCommand extends Command {
       const spinner = spinnerStart('正在下载文件')
       try {
         await templateNpm.install()
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        await sleep()
       } catch(e) {
         throw e
       } finally {
@@ -203,7 +207,7 @@ class InitCommand extends Command {
       const spinner = spinnerStart('正在更新文件')
       try {
         await templateNpm.update()
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        await sleep()
       } catch(e) {
         throw e
       } finally {
@@ -213,6 +217,8 @@ class InitCommand extends Command {
         }
       }
     }
+
+    this.templateNpm = templateNpm
   }
 
   // 选择项目模板
@@ -243,8 +249,25 @@ class InitCommand extends Command {
     }
   }
 
+  // 安装默认模板
   async installNormalTemplate() {
-    console.log('安装标准模板')
+    console.log(this.projectInfo)
+    console.log(this.templateNpm.getCacheFilePath())
+    const spinner = spinnerStart('正在安装模板...')
+    await sleep()
+
+    try {
+      const tempaltePath = path.resolve(this.templateNpm.getCacheFilePath(), 'template')
+      const targetPath = process.cwd()
+      fse.ensureDirSync(tempaltePath)
+      fse.ensureDirSync(targetPath)
+      fse.copySync(tempaltePath, targetPath)
+    } catch(e) {
+      throw e
+    } finally {
+      spinner.stop(true)
+      log.success('模板安装成功')
+    }
   }
 
   async installCustomTemplate() {

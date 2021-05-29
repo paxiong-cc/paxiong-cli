@@ -32,12 +32,16 @@ class Package {
 		}
 
 		if (this.packageVersion === 'latest') {
-			this.packageVersion = await getNpmInfo.getUpdateVersions(this.packageName)
+			this.packageVersion = await getNpmInfo.getUpdateVersions('', this.packageName)
 		}
 	}
 
 	// _ccc@0.5.1@ccc
 	get cacheFilePath() {
+		return path.resolve(this.storePath, `_${this.cacheFilePathPrefix}@${this.packageVersion}@${this.packageName}`)
+	}
+
+	getCacheFilePath() {
 		return path.resolve(this.storePath, `_${this.cacheFilePathPrefix}@${this.packageVersion}@${this.packageName}`)
 	}
 
