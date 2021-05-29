@@ -3,12 +3,15 @@
 const Command = require('@paxiong-cli/command')
 const log = require('@paxiong-cli/log')
 const fs = require('fs')
+const glob = require('glob')
+const ejs = require('ejs')
 const inquirer = require('inquirer')
 const fse = require('fs-extra')
 const semver = require('semver')
 const getProjectTemplate = require('./getProjectTemplate');
 const Package = require('@paxiong-cli/package')
 const { spinnerStart, sleep } = require('@paxiong-cli/utils')
+const kc = require('kebab-case')
 const TPYE_PROJECT = 'project'
 const TPYE_COMPONENT = 'component'
 const TEMPLATE_TYPE_NORMAL = 'default'
@@ -169,6 +172,11 @@ class InitCommand extends Command {
         }
       ])
       const item = this.template.find(item => item.npm_name === projectInfo.projectTemplate)
+
+      if (projectInfo.projectName) {
+        projectInfo.projectName = kc(projectInfo.projectName).replace(/\^-/, '')
+      }
+      projectInfo.version = projectInfo.projectVersion
       return info = { ...projectInfo, projectType: TPYE_PROJECT, type: item.type }
     // 创建组件
     } else if (type === TPYE_COMPONENT) {
@@ -251,8 +259,6 @@ class InitCommand extends Command {
 
   // 安装默认模板
   async installNormalTemplate() {
-    console.log(this.projectInfo)
-    console.log(this.templateNpm.getCacheFilePath())
     const spinner = spinnerStart('正在安装模板...')
     await sleep()
 
@@ -262,6 +268,12 @@ class InitCommand extends Command {
       fse.ensureDirSync(tempaltePath)
       fse.ensureDirSync(targetPath)
       fse.copySync(tempaltePath, targetPath)
+
+      // 渲染copy后的模板
+      const options = {
+        ignore: ['node_modules/**', 'public/**']
+      }
+      await this.renderEjs(options)
     } catch(e) {
       throw e
     } finally {
@@ -272,6 +284,42 @@ class InitCommand extends Command {
 
   async installCustomTemplate() {
     console.log('安装自定义模板')
+  }
+
+  // 渲染Ejs模板
+  async renderEjs(options) {
+    return new Promise((resolve, reject) => {
+      // 扫描当前工作目录文件
+      glob('**', {
+        cwd: process.cwd(),
+        ignore: options.ignore,
+        nodir: true
+      }, (err, files) => {
+
+        if (err) {
+          reject(err)
+        }
+
+        const dir = process.cwd()
+        // 全部重写
+        Promise.all(files.map(file => {
+          const filePath = path.join(dir, file)
+          return new Promise((resolve1, reject1) => {
+            ejs.renderFile(filePath, this.projectInfo, {}, (err, res) => {
+              if (err) {
+                reject1(err)
+              } else {
+                fse.writeFileSync(filePath, res)
+                resolve1(res)
+              }
+            })
+          })
+        }))
+
+        resolve()
+        // console.log(files)
+      })
+    })
   }
 }
 
