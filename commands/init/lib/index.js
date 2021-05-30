@@ -128,72 +128,87 @@ class InitCommand extends Command {
       ]
     })
 
-    // 输入项目信息
-    if (type === TPYE_PROJECT) {
-      const promptList = [
-        {
-          type: 'input',
-          name: 'projectVersion',
-          message: '请输入项目版本号',
-          default: '1.0.0',
-          validate: function(v) {
-            const done = this.async()
-            if (!semver.valid(v)) {
-              done('请输入合法的版本号')
-              return
-            }
-            done('', true)
-          },
-          filter: function(v) {
-            return semver.valid(v)
-          }
-        },
-        {
-          type: 'list',
-          name: 'projectTemplate',
-          message: '请选择项目模板',
-          choices: this.selectTemplate()
-        }
-      ]
-      
-      // 如果已经init name
-      if (process.env.PROJECT_NAME == 'undefined') {
-        promptList.unshift({
-          type: 'input',
-          name: 'projectName',
-          message: '请输入项目名称',
-          default: 'paxiong',
-          validate: function(v) {
-            const done = this.async()
-            // 合法 a, a-b, a_b, a_b_c, a_b1_c1
-            const reg = /^[a-zA-Z]+([-_][a-zA-Z]+\d*)*$/
-            if (!reg.test(v)) {
-              done('请输入合法的项目名称')
-              return
-            }
-            done(null, true)
-          }
-        })
-      }
-
-      const projectInfo = await inquirer.prompt(promptList)
-
-      if (process.env.PROJECT_NAME) {
-        projectInfo.projectName = process.env.PROJECT_NAME
-      }
-
-      // 筛选选中的模板
-      const item = this.template.find(item => item.npm_name === projectInfo.projectTemplate)
-
-      if (projectInfo.projectName) {
-        projectInfo.projectName = kc(projectInfo.projectName).replace(/\^-/, '')
-      }
-      projectInfo.version = projectInfo.projectVersion
-      return info = { ...projectInfo, projectType: TPYE_PROJECT, type: item.type }
-    // 创建组件
-    } else if (type === TPYE_COMPONENT) {
-
+    let selectType = {
+      type
     }
+    // 判断选择的类型
+    if (selectType.type === TPYE_PROJECT) {
+      selectType.name = '项目'
+
+    } else if (selectType.type === TPYE_COMPONENT) {
+      selectType.name = '组件'
+    }
+
+    const promptList = [
+      {
+        type: 'input',
+        name: 'projectVersion',
+        message: `请输入${selectType.name}版本号`,
+        default: '1.0.0',
+        validate: function(v) {
+          const done = this.async()
+          if (!semver.valid(v)) {
+            done('请输入合法的版本号')
+            return
+          }
+          done('', true)
+        },
+        filter: function(v) {
+          return semver.valid(v)
+        }
+      },
+      {
+        type: 'list',
+        name: 'projectTemplate',
+        message: `请选择${selectType.name}模板`,
+        choices: this.selectTemplate(selectType.type)
+      }
+    ]
+
+    // 如果已经init name
+    if (process.env.PROJECT_NAME == 'undefined') {
+      promptList.unshift({
+        type: 'input',
+        name: 'projectName',
+        message: `请输入${selectType.name}名称`,
+        default: 'paxiong',
+        validate: function(v) {
+          const done = this.async()
+          // 合法 a, a-b, a_b, a_b_c, a_b1_c1
+          const reg = /^[a-zA-Z]+([-_][a-zA-Z]+\d*)*$/
+          if (!reg.test(v)) {
+            done(`请输入合法的${selectType.name}名称`)
+            return
+          }
+          done(null, true)
+        }
+      })
+    }
+
+    const projectInfo = await inquirer.prompt(promptList)
+
+    if (process.env.PROJECT_NAME) {
+      projectInfo.projectName = process.env.PROJECT_NAME
+    }
+
+    // 筛选选中的模板
+    const item = this.template.find(item => item.npm_name === projectInfo.projectTemplate)
+
+    if (projectInfo.projectName) {
+      projectInfo.projectName = kc(projectInfo.projectName).replace(/\^-/, '')
+    }
+    projectInfo.version = projectInfo.projectVersion
+    return info = { ...projectInfo, projectType: TPYE_PROJECT, type: item.type, ignore: item.ignore }
+
+
+    // // 输入项目信息
+    // if (type === TPYE_PROJECT) {
+
+      
+    // // 创建组件
+    // } else if (type === TPYE_COMPONENT) {
+
+    // }
   }
 
   // 下载模板项目
@@ -242,13 +257,15 @@ class InitCommand extends Command {
   }
 
   // 选择项目模板
-  selectTemplate() {
-    return this.template.map(item => {
-      return {
-        value: item.npm_name,
-        name: item.name
-      }
-    })
+  selectTemplate(type) {
+    return this.template
+      .filter(item => item.tag === type)
+      .map(item => {
+        return {
+          value: item.npm_name,
+          name: item.name
+        }
+      })
   }
 
   // 安装模板
@@ -282,9 +299,15 @@ class InitCommand extends Command {
       fse.copySync(tempaltePath, targetPath)
 
       // 渲染copy后的模板
-      const options = {
-        ignore: ['node_modules/**', 'public/**']
+
+      let options = {
+        ignore: []
       }
+
+      if (this.projectInfo.ignore) {
+        options.ignore = String(this.projectInfo.ignore).split(',') || []
+      }
+
       await this.renderEjs(options)
     } catch(e) {
       throw e

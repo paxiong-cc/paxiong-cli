@@ -99,7 +99,8 @@ function registerCommand() {
   // 初始配置
   program
     .name(Object.keys(pkg.bin)[0])
-    .usage('<command> [options]')
+    // .usage('<command> [options]')
+    .usage('<command> options')
     .version(pkg.version)
     .option('-d, --debug', 'open debug', false)
     .option('-tp, --targetPath <targetPath>', '是否指定本地调试文件路径', '')

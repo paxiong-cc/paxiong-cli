@@ -68,15 +68,17 @@ class Package {
 		})
 	}
 
-	// 更定Package
+	// 更新Package
 	async update() {
-		if (!pathExists(this.cacheFilePath)) {
+		if (pathExists(this.cacheFilePath)) {
+			const version = await getNpmInfo.getUpdateVersions(null, this.packageName)
+			this.packageVersion = version
 			return npminstall({
 				root: this.targetPath,
 				storeDir: this.storePath,
 				register: getNpmInfo.getRegistry(),
 				pkgs: [
-					{ name: this.packageName, version: this.packageVersion }
+					{ name: this.packageName, version }
 				]
 			})
 		}

@@ -7,12 +7,17 @@ const axios = require('axios')
 // 获取可更新的版本号
 async function getUpdateVersions(version, packageName) {
 	// const url = 'http://registry.npm.taobao.org/@paxiong-cli/core'
+	let flag = true
+	if (!version) {
+		version = '0.0.1'
+		flag = false
+	}
 	const url = urlJoin(getRegistry(), packageName)
 	const versions = await httpGetInfoVersions(url)
 	let versionList = Object.keys(versions)
 	versionList = versionList.filter(item => semver.satisfies(item, `>=${version}`))
-	if (!version) {
-		versionList = versionList[0]
+	if (!flag) {
+		versionList = versionList.slice(0, 1)
 	} else {
 		versionList = versionList.sort((a, b) => semver.gt(a, b) ? -1 : 1)
 	}

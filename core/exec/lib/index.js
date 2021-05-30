@@ -6,41 +6,64 @@ const path = require('path')
 const cp = require('child_process')
 
 async function exec() {
+  // const options = {
+  //   targetPath: process.env.CLI_TARGET_PATH,
+  //   storePath: process.env.CLI_HOME_PATH,
+  //   packageName: arguments[arguments.length - 1].args[0],
+  //   packageVersion: 'latest',
+  // }
+
+  // process.env.PROJECT_NAME = options.packageName
+
+  // const CACHE_DIR = 'dependencies'
+  // let pkg
+
+  // log.verbose('targetPath', options.targetPath)
+  // log.verbose('storePath', options.storePath)
+
+  // // 没有输入-tp的时候
+  // if (!options.targetPath) {
+  //   options.targetPath = path.resolve(process.env.CLI_HOME_PATH, CACHE_DIR)
+  //   options.storePath = path.resolve(options.targetPath, 'node_modules')
+
+  //   pkg = new Package(options)
+
+  //   // 存在更新
+  //   if (await pkg.exists()) {
+  //     await pkg.update()
+
+  //   // 不存在则安装
+  //   } else {
+  //     await pkg.install()
+  //   }
+
+  // } else {
+  //   Reflect.deleteProperty(options, 'storePath')
+  //   pkg = new Package(options)
+  // }
+
+  // // 无tp走缓存, 有tp走tp
+  // const rootFile = pkg.getRootFilePath()
+
+  const reg = /^[a-zA-Z]+([-_][a-zA-Z]+\d*)*$/
+  const projectName = arguments[arguments.length - 1].args[0]
+  if (projectName && !reg.test(projectName)) {
+    log.error('项目名称不合法')
+    return
+  }
+
+  // 只是为了获取-tp初始文件目录
   const options = {
     targetPath: process.env.CLI_TARGET_PATH,
     storePath: process.env.CLI_HOME_PATH,
-    packageName: arguments[arguments.length - 1].args[0] || 'paxiong',
+    packageName: 'asd',
     packageVersion: 'latest',
   }
-  const CACHE_DIR = 'dependencies'
-  let pkg
-
-  log.verbose('targetPath', options.targetPath)
-  log.verbose('storePath', options.storePath)
-
-  // 没有输入-tp的时候
-  if (!options.targetPath) {
-    options.targetPath = path.resolve(process.env.CLI_HOME_PATH, CACHE_DIR)
-    options.storePath = path.resolve(options.targetPath, 'node_modules')
-
-    pkg = new Package(options)
-
-    // 存在更新
-    if (await pkg.exists()) {
-      await pkg.update()
-
-    // 不存在则安装
-    } else {
-      await pkg.install()
-    }
-
-  } else {
-    Reflect.deleteProperty(options, 'storePath')
-    pkg = new Package(options)
-  }
-  // 无tp走缓存, 有tp走tp
+  Reflect.deleteProperty(options, 'storePath')
+  process.env.PROJECT_NAME = arguments[arguments.length - 1].args[0]
+  const pkg = new Package(options)
   const rootFile = pkg.getRootFilePath()
-  
+
   // init模块路径
   if (rootFile) {
     try {
