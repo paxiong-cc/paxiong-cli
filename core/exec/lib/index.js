@@ -4,46 +4,40 @@ const Package = require('@paxiong-cli/package')
 const log = require('@paxiong-cli/log')
 const path = require('path')
 const cp = require('child_process')
+const CACHE_DIR = 'template'
 
 async function exec() {
-  // const options = {
-  //   targetPath: process.env.CLI_TARGET_PATH,
-  //   storePath: process.env.CLI_HOME_PATH,
-  //   packageName: arguments[arguments.length - 1].args[0],
-  //   packageVersion: 'latest',
-  // }
+  const options = {
+    // targetPath: process.env.CLI_TARGET_PATH,
+    targetPath: process.env.CLI_HOME_PATH,
+    storePath: path.join(process.env.CLI_HOME_PATH, CACHE_DIR),
+    packageName: '@paxiong-cli/init',
+    packageVersion: 'latest',
+  }
 
-  // process.env.PROJECT_NAME = options.packageName
-
-  // const CACHE_DIR = 'dependencies'
-  // let pkg
+  let pkg
 
   // log.verbose('targetPath', options.targetPath)
   // log.verbose('storePath', options.storePath)
 
-  // // 没有输入-tp的时候
-  // if (!options.targetPath) {
-  //   options.targetPath = path.resolve(process.env.CLI_HOME_PATH, CACHE_DIR)
-  //   options.storePath = path.resolve(options.targetPath, 'node_modules')
+  // 没有输入-tp的时候
+  if (!process.env.CLI_TARGET_PATH) {
+    pkg = new Package(options)
 
-  //   pkg = new Package(options)
+    // 存在更新
+    if (await pkg.exists()) {
+      await pkg.update()
 
-  //   // 存在更新
-  //   if (await pkg.exists()) {
-  //     await pkg.update()
-
-  //   // 不存在则安装
-  //   } else {
-  //     await pkg.install()
-  //   }
-
-  // } else {
-  //   Reflect.deleteProperty(options, 'storePath')
-  //   pkg = new Package(options)
-  // }
-
-  // // 无tp走缓存, 有tp走tp
-  // const rootFile = pkg.getRootFilePath()
+    // 不存在则安装
+    } else {
+      await pkg.install()
+    }
+  
+  } else {
+    Reflect.deleteProperty(options, 'storePath')
+    options.targetPath = process.env.CLI_TARGET_PATH
+    pkg = new Package(options)
+  }
 
   const reg = /^[a-zA-Z]+([-_][a-zA-Z]+\d*)*$/
   const projectName = arguments[arguments.length - 1].args[0]
@@ -53,16 +47,8 @@ async function exec() {
   }
 
   // 只是为了获取-tp初始文件目录
-  const options = {
-    targetPath: process.env.CLI_TARGET_PATH,
-    storePath: process.env.CLI_HOME_PATH,
-    packageName: 'asd',
-    packageVersion: 'latest',
-  }
-  Reflect.deleteProperty(options, 'storePath')
-  process.env.PROJECT_NAME = arguments[arguments.length - 1].args[0]
-  const pkg = new Package(options)
   const rootFile = pkg.getRootFilePath()
+  process.env.PROJECT_NAME = arguments[arguments.length - 1].args[0]
 
   // init模块路径
   if (rootFile) {
