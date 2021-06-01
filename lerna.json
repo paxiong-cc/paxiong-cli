@@ -3,7 +3,7 @@
     "core/*",
     "commands/*",
     "models/*",
-    "utils/*"
+    "utils/*" 
   ],
   "version": "1.3.2"
 }
