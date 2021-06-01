@@ -1,6 +1,6 @@
 {
   "name": "@paxiong-cli/format-path",
-  "version": "1.3.4",
+  "version": "1.3.5",
   "description": "compatible windows or macOS path",
   "author": "Administrator <576303283@qq.com>",
   "homepage": "https://github.com/paxiong-cc/paxiong-cli#readme",

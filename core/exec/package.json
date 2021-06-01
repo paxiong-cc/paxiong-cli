@@ -1,6 +1,6 @@
 {
   "name": "@paxiong-cli/exec",
-  "version": "1.3.4",
+  "version": "1.3.5",
   "description": "paxiong-cli execute package",
   "author": "Administrator <576303283@qq.com>",
   "homepage": "https://github.com/paxiong-cc/paxiong-cli#readme",
@@ -27,8 +27,8 @@
     "url": "https://github.com/paxiong-cc/paxiong-cli/issues"
   },
   "dependencies": {
-    "@paxiong-cli/log": "^1.3.4",
-    "@paxiong-cli/package": "^1.3.4"
+    "@paxiong-cli/log": "^1.3.5",
+    "@paxiong-cli/package": "^1.3.5"
   },
   "gitHead": "20c1f76c80516f41422ca450c424f45b98b0056c"
 }

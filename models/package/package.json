@@ -1,6 +1,6 @@
 {
   "name": "@paxiong-cli/package",
-  "version": "1.3.4",
+  "version": "1.3.5",
   "description": "paxiong-cli npm modules",
   "author": "Administrator <576303283@qq.com>",
   "homepage": "https://github.com/paxiong-cc/paxiong-cli#readme",
@@ -27,8 +27,8 @@
     "url": "https://github.com/paxiong-cc/paxiong-cli/issues"
   },
   "dependencies": {
-    "@paxiong-cli/format-path": "^1.3.4",
-    "@paxiong-cli/get-npm-info": "^1.3.4",
+    "@paxiong-cli/format-path": "^1.3.5",
+    "@paxiong-cli/get-npm-info": "^1.3.5",
     "fs-extra": "^10.0.0",
     "npminstall": "^4.11.0",
     "path-exists": "^4.0.0",
