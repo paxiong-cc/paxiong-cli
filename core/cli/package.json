@@ -30,10 +30,10 @@
     "url": "https://github.com/paxiong-cc/paxiong-cli/issues"
   },
   "dependencies": {
-    "@paxiong-cli/exec": "file:../exec",
-    "@paxiong-cli/get-npm-info": "file:../../utils/get-npm-info",
-    "@paxiong-cli/init": "file:../../commands/init",
-    "@paxiong-cli/log": "file:../../utils/log",
+    "@paxiong-cli/exec": "^1.0.0",
+    "@paxiong-cli/get-npm-info": "^1.0.0",
+    "@paxiong-cli/init": "^1.0.0",
+    "@paxiong-cli/log": "^1.0.0",
     "colors": "^1.4.0",
     "commander": "^7.2.0",
     "dotenv": "^8.2.0",
@@ -42,5 +42,6 @@
     "root-check": "^1.0.0",
     "semver": "^7.3.5",
     "user-home": "^3.0.0"
-  }
+  },
+  "gitHead": "8b4a34ac7ec85467731d0388061306c904941a64"
 }

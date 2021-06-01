@@ -48,7 +48,7 @@ async function exec() {
 
   // 只是为了获取-tp初始文件目录
   const rootFile = pkg.getRootFilePath()
-  process.env.PROJECT_NAME = arguments[arguments.length - 1].args[0]
+  process.env.PROJECT_NAME = arguments[arguments.length - 1].args[0] 
 
   // init模块路径
   if (rootFile) {

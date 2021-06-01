@@ -27,15 +27,16 @@
     "url": "https://github.com/paxiong-cc/paxiong-cli/issues"
   },
   "dependencies": {
-    "@paxiong-cli/command": "file:../../models/command",
-    "@paxiong-cli/log": "file:../../utils/log",
-    "@paxiong-cli/package": "file:../../models/package",
-    "@paxiong-cli/request": "file:../../utils/request",
-    "@paxiong-cli/utils": "file:../../utils/utils",
+    "@paxiong-cli/command": "^1.0.0",
+    "@paxiong-cli/log": "^1.0.0",
+    "@paxiong-cli/package": "^1.0.0",
+    "@paxiong-cli/request": "^1.0.0",
+    "@paxiong-cli/utils": "^1.0.0",
     "ejs": "^3.1.6",
     "fs-extra": "^10.0.0",
     "inquirer": "^8.0.0",
     "kebab-case": "^1.0.1",
     "semver": "^7.3.5"
-  }
+  },
+  "gitHead": "8b4a34ac7ec85467731d0388061306c904941a64"
 }
