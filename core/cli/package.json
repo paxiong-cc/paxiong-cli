@@ -1,6 +1,6 @@
 {
   "name": "@paxiong-cli/cli",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "> TODO: description",
   "author": "Administrator <576303283@qq.com>",
   "homepage": "https://github.com/paxiong-cc/paxiong-cli#readme",
@@ -30,10 +30,10 @@
     "url": "https://github.com/paxiong-cc/paxiong-cli/issues"
   },
   "dependencies": {
-    "@paxiong-cli/get-npm-info": "file:../../utils/get-npm-info",
-    "@paxiong-cli/log": "file:../../utils/log",
-    "@paxiong-cli/init": "file:../../commands/init",
     "@paxiong-cli/exec": "file:../exec",
+    "@paxiong-cli/get-npm-info": "file:../../utils/get-npm-info",
+    "@paxiong-cli/init": "file:../../commands/init",
+    "@paxiong-cli/log": "file:../../utils/log",
     "colors": "^1.4.0",
     "commander": "^7.2.0",
     "dotenv": "^8.2.0",

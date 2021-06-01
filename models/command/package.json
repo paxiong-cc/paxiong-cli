@@ -1,6 +1,6 @@
 {
   "name": "@paxiong-cli/command",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "> TODO: description",
   "author": "Administrator <576303283@qq.com>",
   "homepage": "https://github.com/paxiong-cc/paxiong-cli#readme",
@@ -27,8 +27,8 @@
     "url": "https://github.com/paxiong-cc/paxiong-cli/issues"
   },
   "dependencies": {
+    "@paxiong-cli/log": "file:../../utils/log",
     "colors": "^1.4.0",
-    "semver": "^7.3.5",
-    "@paxiong-cli/log": "file:../../utils/log"
+    "semver": "^7.3.5"
   }
 }
