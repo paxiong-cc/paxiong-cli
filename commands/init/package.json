@@ -1,6 +1,6 @@
 {
   "name": "@paxiong-cli/init",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "init",
   "author": "Administrator <576303283@qq.com>",
   "homepage": "https://github.com/paxiong-cc/paxiong-cli#readme",
@@ -27,11 +27,11 @@
     "url": "https://github.com/paxiong-cc/paxiong-cli/issues"
   },
   "dependencies": {
-    "@paxiong-cli/command": "^1.0.0",
-    "@paxiong-cli/log": "^1.0.0",
-    "@paxiong-cli/package": "^1.0.0",
-    "@paxiong-cli/request": "^1.0.0",
-    "@paxiong-cli/utils": "^1.0.0",
+    "@paxiong-cli/command": "^1.1.0",
+    "@paxiong-cli/log": "^1.1.0",
+    "@paxiong-cli/package": "^1.1.0",
+    "@paxiong-cli/request": "^1.1.0",
+    "@paxiong-cli/utils": "^1.1.0",
     "ejs": "^3.1.6",
     "fs-extra": "^10.0.0",
     "inquirer": "^8.0.0",
