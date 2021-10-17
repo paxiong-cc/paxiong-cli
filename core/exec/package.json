@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@paxiong-cli/log": "^1.3.5",
-    "@paxiong-cli/package": "^1.3.5"
+    "@paxiong-cli/package": "file:../../models/package"
   },
   "gitHead": "20c1f76c80516f41422ca450c424f45b98b0056c"
 }

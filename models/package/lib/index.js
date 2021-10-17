@@ -92,8 +92,10 @@ class Package {
 			if (dir) {
 				// 读取package.json
 				const pkgFile = require(path.resolve(dir, 'package.json'))
+
 				// 寻找main
 				if (pkgFile && pkgFile.main) {
+					const dd = path.resolve(dir, pkgFile.main)
 					// 路径的兼容(macOS/windows)
 					return formatPath(path.resolve(dir, pkgFile.main))
 				}

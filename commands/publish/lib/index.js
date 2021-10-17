@@ -3,21 +3,28 @@
 const Command = require('@paxiong-cli/command')
 const log = require('@paxiong-cli/log')
 const fse = require('fs-extra')
+const Git = require('@paxiong-cli/git')
 
 class PublishCommand extends Command {
     init() {
-
+        // 是否重新写入平台
+        this.resetServer = !!this._argv.resetGitServer
+        console.log(this._argv, this._cmd)
     }
 
-    exec() {
+    async exec() {
         try {
             const startTime = new Date().getTime();
-            const endTime = new Date().getTime();
 
             // 初始化检查
             this.prepare()
+            
             // Git Flow自动化
+            const git = new Git(this.projectInfo)
+            await git.checkGitServer(this.resetServer) // 检查用户远程仓库类型
+
             // 云构建和云发布
+            const endTime = new Date().getTime();
             log.info('本次发布耗时', Math.floor((endTime - startTime) / 1000) + 's')
         } catch (e) {
             log.error(e.message)

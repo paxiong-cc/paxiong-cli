@@ -112,6 +112,12 @@ function registerCommand() {
     // .action(init)
     .action(exec)
 
+  // 注册命令
+  program
+    .command('publish')
+    .option('-rs, --resetGitServer', '是否重置git平台', true)
+    .action(exec)
+
   // 监听debug命令
   program.on('option:debug', function() {
     if (program._optionValues.debug) {
