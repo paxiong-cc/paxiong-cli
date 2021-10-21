@@ -29,9 +29,11 @@
   "dependencies": {
     "@paxiong-cli/log": "file:../../utils/log",
     "@paxiong-cli/utils": "file:../../utils/utils",
+    "axios": "^0.23.0",
     "fs-extra": "^10.0.0",
     "inquirer": "^8.2.0",
     "simple-git": "^2.46.0",
+    "terminal-link": "^2.1.1",
     "user-home": "^3.0.0"
   }
 }

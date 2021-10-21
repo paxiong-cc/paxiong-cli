@@ -7,9 +7,16 @@ const Git = require('@paxiong-cli/git')
 
 class PublishCommand extends Command {
     init() {
+        // 当前路径的项目信息
+        this.projectInfo = {}
         // 是否重新写入平台
         this.resetServer = !!this._argv.resetGitServer
-        console.log(this._argv, this._cmd)
+        // 是否重新写入token
+        this.resetGitToken = !!this._argv.resetGitToken
+        this.otherInfo = {
+            resetServer: this.resetServer,
+            resetGitToken: this.resetGitToken
+        }
     }
 
     async exec() {
@@ -20,8 +27,8 @@ class PublishCommand extends Command {
             this.prepare()
             
             // Git Flow自动化
-            const git = new Git(this.projectInfo)
-            await git.checkGitServer(this.resetServer) // 检查用户远程仓库类型
+            const git = new Git({ ...this.projectInfo, ...this.otherInfo })
+            await git.prepare()
 
             // 云构建和云发布
             const endTime = new Date().getTime();

@@ -115,7 +115,8 @@ function registerCommand() {
   // 注册命令
   program
     .command('publish')
-    .option('-rs, --resetGitServer', '是否重置git平台', true)
+    .option('-rs, --resetGitServer', '是否重置git平台', false)
+    .option('-rt, --resetGitToken', '是否重置git平台token', false)
     .action(exec)
 
   // 监听debug命令
