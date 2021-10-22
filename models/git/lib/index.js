@@ -13,12 +13,17 @@ const githubServer = require('./Github')
 const giteeServer = require('./Gitee')
 const DEFAULT_CLI_HOME = 'paxiong-cli'
 const GIT_ROOT_DIR = '.git'
-const GIT_SERVER_FILE = '.git_server'
-const GIT_TOKEN_FILE = '.git_token'
+const GIT_SERVER_FILE = '.git_server' // 平台
+const GIT_TOKEN_FILE = '.git_token' // access_token
+const GIT_OWN_FILE = '.git_own'
+const GIT_LOGIN_FILE = '.git_login'
+
 const GITHUB = 'github' 
 const GITEE = 'gitee'
+const REPO_OWNER_USER = 'user'
+const REPO_OWNER_ORG = 'org'
 
-
+// 平台
 const GIT_PLATE_CHOICE = [
     {
         name: 'github',
@@ -30,9 +35,27 @@ const GIT_PLATE_CHOICE = [
     }
 ]
 
+// 仓库类型
+const GIT_OWNER_TYPE = [
+    {
+        name: '个人',
+        value: REPO_OWNER_USER
+    },
+    {
+        name: '组织',
+        value: REPO_OWNER_ORG
+    },
+]
+const GIT_OWNER_TYPE_ONLY = [
+    {
+        name: '个人',
+        value: REPO_OWNER_USER
+    }
+]
+
 class Git {
     constructor(projectInfo) {
-        const { name, version, dir, resetServer, resetGitToken } = projectInfo
+        const { name, version, dir, resetServer, resetGitToken, resetOwner, resetLogin } = projectInfo
         this.name = name
         this.version = version
         this.dir = dir // 当前目录路径
@@ -40,9 +63,13 @@ class Git {
         this.homePath = null // 用户主目录
         this.resetServer = resetServer // 重置gitServer
         this.resetGitToken = resetGitToken // 重置token
+        this.resetOwner = resetOwner // 是否重置git远程仓库类型
+        this.resetLogin = resetLogin // 是否重置git平台远程仓库登录名
         this.gitServer = null // git服务
         this.uesr = null // 用户信息
         this.orgz = null // 组织信息
+        this.owner = null // 远程仓库类型
+        this.login = null // 远程仓库登录名(用户名)
         
         // this.prepare()
         // this.init()
@@ -53,6 +80,7 @@ class Git {
         await this.checkGitServer(this.resetServer) // 检查远程仓库平台并创建平台对象
         await this.checkGitToken() // 检查平台token
         await this.getUserAndOrgz() // 获取用户和组织信息
+        await this.checkGitOwner() // 确认远程仓库类型
     }
 
     init () {
@@ -137,13 +165,58 @@ class Git {
         if (!this.user) {
             throw Error('获取用户信息失败')
         }
+        log.verbose('用户信息', this.user)
 
         this.orgz = await this.gitServer.getOrg(this.user.login)
         if (!this.orgz) {
             throw Error('获取组织信息失败')
         }
-
+        log.verbose('组织信息', this.orgz)
         log.success(this.gitServer.type + ' 用户和组织信息获取成功')
+    }
+
+    // 确认远程仓库类型
+    async checkGitOwner() {
+        const ownerPath = this.createPath(GIT_OWN_FILE)
+        const loginPath = this.createPath(GIT_LOGIN_FILE)
+        let owner = readFile(ownerPath)
+        let login = readFile(loginPath)
+        
+        if (!owner || !login || this.resetOwner || this.resetLogin) {
+            owner = (await inquirer.prompt({
+                type: 'list',
+                name: 'owner',
+                message: `请选择远程仓库类型`,
+                default: REPO_OWNER_USER,
+                choices: this.orgz.length > 0 ? GIT_OWNER_TYPE : GIT_OWNER_TYPE_ONLY
+            })).owner
+
+            if (owner === REPO_OWNER_USER) {
+                login = this.user.login
+            } else {
+                login = (await inquirer.prompt({
+                    type: 'list',
+                    name: 'login',
+                    message: `请选择`,
+                    default: REPO_OWNER_USER,
+                    choices: this.orgz.map(item => ({
+                        name: item.login,
+                        value: item.login
+                    }))
+                })).login
+            }
+            writeFile(ownerPath, owner)
+            writeFile(loginPath, login)
+
+            log.success('owner写入成功', `${owner} -> ${ownerPath}`)
+            log.success('login写入成功', `${login} -> ${loginPath}`)
+        } else {
+            log.success('owner获取成功', owner)
+            log.success('login获取成功', login)
+        }
+
+        this.owner = owner
+        this.login = login
     }
 
     createPath(file) {

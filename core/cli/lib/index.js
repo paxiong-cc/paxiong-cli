@@ -117,6 +117,8 @@ function registerCommand() {
     .command('publish')
     .option('-rs, --resetGitServer', '是否重置git平台', false)
     .option('-rt, --resetGitToken', '是否重置git平台token', false)
+    .option('-ro, --resetOwner', '是否重置git远程仓库类型', false)
+    .option('-rl, --resetLogin', '是否重置git平台远程仓库登录名', false)
     .action(exec)
 
   // 监听debug命令

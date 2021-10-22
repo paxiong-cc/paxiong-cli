@@ -13,9 +13,15 @@ class PublishCommand extends Command {
         this.resetServer = !!this._argv.resetGitServer
         // 是否重新写入token
         this.resetGitToken = !!this._argv.resetGitToken
+        // 是否重置git远程仓库类型
+        this.resetOwner = !!this._argv.resetOwner
+        // 是否重置git平台远程仓库登录名
+        this.resetLogin = !!this._argv.resetLogin
         this.otherInfo = {
             resetServer: this.resetServer,
-            resetGitToken: this.resetGitToken
+            resetGitToken: this.resetGitToken,
+            resetOwner: this.resetOwner,
+            resetLogin: this.resetLogin
         }
     }
 
