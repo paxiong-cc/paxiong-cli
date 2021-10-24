@@ -28,6 +28,23 @@ class GitServer {
   getOrg() {
     error('getOrg');
   }
+
+  /**
+   * 获取远程仓库
+   * @param {string} login 登录仓库的用户名
+   * @param {string} name package.json 中的项目名称
+   */
+  getRepo(login, name) {
+    error('getRepo');
+  }
+
+  createRepo(name) {
+    error('createRepo');
+  }
+
+  createOrgRepo(name, login) {
+    error('createOrgRepo');
+  }
 }
 
 module.exports = GitServer
